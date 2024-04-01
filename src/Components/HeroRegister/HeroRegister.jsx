@@ -1,12 +1,30 @@
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import auth from "../../Firebase/firebase.config";
+import { useState } from "react";
 
 
 const HeroRegister = () => {
+    //same email use korle 1ta error ashe console e,amra shei error take ui te text hishebe dekhate chai then 
+    const [registerError, setRegisterError] = useState()
+
+
     const handleRegister = e => {
         e.preventDefault()
         const email = e.target.email.value
         const password = e.target.password.value
         // console.log('form submit')
         console.log(email, password)
+        setRegisterError('')
+        createUserWithEmailAndPassword(auth,email, password)
+        .then(result =>{
+            console.log(result.user)
+        })
+        .catch(error =>{
+            console.log(error)
+            console.log(error.message)
+            //based on Password Authentication installation guide
+            setRegisterError(error.message)
+        })
     }
     return (
         <div>
@@ -38,6 +56,9 @@ const HeroRegister = () => {
                                 <button className="btn btn-primary">Login</button>
                             </div>
                         </form>
+                        {
+                            registerError && <p className="text-3xl font-semibold">{registerError}</p>
+                        }
                     </div>
                 </div>
             </div>
