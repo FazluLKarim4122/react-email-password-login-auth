@@ -1,6 +1,7 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 import auth from "../../Firebase/firebase.config";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 
 const LogIn = () => {
@@ -17,14 +18,53 @@ const LogIn = () => {
      signInWithEmailAndPassword(auth, email, password)
      .then(result =>{
         console.log(result.user)
-        setSuccess('User log in successfully')
+        // setSuccess('User log in successfully')
+        // ekhane 1ta validation dite pari je emailVerify hole success na hole alert show korbe.and we can send a verification mail
+        if(result.user.emailVerified){
+            setSuccess('User log in successfully')
+        }
+        else{
+            alert('Please verify your email address')
+            sendEmailVerification(result.user)
+                .then(() =>{
+                    alert('Email Verification sent')
+                })
+        }
      })
      .catch(error =>{
         console.log(error)
         setRegisterError(error.message)
      })
    }
-
+   // forget Password:
+   /**
+    * Problem ta hosse ekhane amra form ke submit korsi na, jokhon form er email,password input field gula submit kori then amra email password gula peye jai
+    * etar solution 2ta :
+    * 1. jokhon email take change kortesi tokhon 1ta state declare korte pari,jokhon onChange hobe tokhon state update kore feltesi and eta use korte pari
+    * 2. ref use kore 
+    * regex: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/ --jodi thik moto na hoy 
+    */
+   const emailRef = useRef(null)
+   const handleForgetPassword = () =>{
+        //validation
+        const email = emailRef.current.value
+        if(!email){
+            console.log('Please provide an email', emailRef.current.value)
+            return
+        }
+        else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+            console.log('Please write a valid email')
+            return
+        }
+        //send validation email
+        sendPasswordResetEmail(auth, email)
+        .then(() =>{
+            alert('please check your email')
+        })
+        .catch(error =>{
+            console.log(error)
+        })
+   }
     return (
         <div className="hero min-h-screen bg-base-200">
             <div className="hero-content flex-col lg:flex-row-reverse">
@@ -39,7 +79,9 @@ const LogIn = () => {
                                 <span className="label-text">Email</span>
                             </label>
                             <input type="email" 
-                            name="email" placeholder="email" className="input input-bordered" required />
+                            name="email" 
+                            ref={emailRef}
+                            placeholder="email" className="input input-bordered" required />
                         </div>
                         <div className="form-control">
                             <label className="label">
@@ -47,7 +89,7 @@ const LogIn = () => {
                             </label>
                             <input type="password" name="password"   placeholder="password" className="input input-bordered" required />
                             <label className="label">
-                                <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
+                                <a onClick={handleForgetPassword} href="#" className="label-text-alt link link-hover">Forgot password?</a>
                             </label>
                         </div>
                         <div className="form-control mt-6">
@@ -60,6 +102,9 @@ const LogIn = () => {
                 {
                     success && <p className="text-3xl font-semibold text-green-600">{success}</p>
                 }
+                <label className="label">
+                               <p>Not Register yet? <Link to='/register'> <a href="#" className="label-text-alt link link-hover">Register here</a></Link></p>
+                </label>
                 </div>
             </div>
         </div>

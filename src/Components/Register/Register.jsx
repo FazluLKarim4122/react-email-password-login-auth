@@ -1,7 +1,8 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import auth from "../../Firebase/firebase.config";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 
 const Register = () => {
@@ -29,7 +30,7 @@ const Register = () => {
             setRegisterError('Password should have at least one UpperCase Characters')
             return
         }
-        else if(!acceptTerms){
+        else if (!acceptTerms) {
             setRegisterError('Please accept our Terms and condition')
             return
         }
@@ -38,7 +39,11 @@ const Register = () => {
         createUserWithEmailAndPassword(auth, email, password)
             .then(result => {
                 console.log(result.user)
-                setSuccess('You can create user successfully')
+                setSuccess('You create user successfully')
+                sendEmailVerification(result.user)
+                .then(() =>{
+                    alert('Email Verification sent')
+                })
             })
             .catch(error => {
                 console.log(error)
@@ -78,7 +83,7 @@ const Register = () => {
                     </div>
                     <br />
                     <div className="">
-                        <input  type="checkbox" name="terms" id="terms" />
+                        <input type="checkbox" name="terms" id="terms" />
                         <label className="ml-2" htmlFor="terms"><a href="">Accept our Terms and Conditions</a></label>
                     </div>
                     <hr />
@@ -90,6 +95,9 @@ const Register = () => {
                 {
                     success && <p className="text-3xl font-semibold text-green-600">{success}</p>
                 }
+                <label className="label">
+                    <p>Already have an account? <Link to='/login'> <a href="#" className="label-text-alt link link-hover">Login here</a></Link></p>
+                </label>
             </div>
         </div>
     );
