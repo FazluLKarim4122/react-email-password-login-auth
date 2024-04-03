@@ -19,7 +19,7 @@ const LogIn = () => {
      .then(result =>{
         console.log(result.user)
         // setSuccess('User log in successfully')
-        // ekhane 1ta validation dite pari je emailVerify hole success na hole alert show korbe.and we can send a verification mail
+        // ekhane 1ta validation dite pari je emailVerify hole success na hole alert show korbe.and we can send a verification mail again
         if(result.user.emailVerified){
             setSuccess('User log in successfully')
         }

@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateCurrentUser, updateProfile } from "firebase/auth";
 import auth from "../../Firebase/firebase.config";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -14,7 +14,8 @@ const Register = () => {
         const email = e.target.email.value
         const password = e.target.password.value
         const acceptTerms = e.target.terms.checked
-        console.log(email, password, acceptTerms)
+        const name = e.target.name.value
+        console.log(name, email, password, acceptTerms)
         //reset error message(protibar jokhon form submit korbo tokhon hoar aage error message take clear hoye jabe , jodi clear na kori tahole state e error ta theke jabe)
         setRegisterError('')
         setSuccess('')
@@ -40,10 +41,26 @@ const Register = () => {
             .then(result => {
                 console.log(result.user)
                 setSuccess('You create user successfully')
-                sendEmailVerification(result.user)
-                .then(() =>{
-                    alert('Email Verification sent')
+                //Update profile
+                /**Update User Name
+                *After create the user we have to send user name.
+                */
+                updateProfile(result.user,{
+                    displayName: name,
+                    photoURL: "https://example.com/jane-q-user/profile.jpg"
                 })
+                .then( () =>{
+                    console.log('profile updated')
+                })
+                .catch(error =>{
+                    console.log(error)
+                    setRegisterError(error.message)
+                })
+                //send verification email
+                sendEmailVerification(result.user)
+                    .then(() => {
+                        alert('Email Verification sent')
+                    })
             })
             .catch(error => {
                 console.log(error)
@@ -61,11 +78,15 @@ const Register = () => {
      * 1. access korte hobe
      */
 
+
     return (
         <div className="">
             <div className="mx-auto md:w-1/2">
                 <h2 className="text-3xl font-bold mb-8">Register here</h2>
                 <form onSubmit={handleRegister} className="space-y-3">
+                    <input className="w-full border-2 p-4 mb-4" type="text" name="name" id="" placeholder="Your Name" required />
+                    <br />
+                    <hr />
                     <input className="w-full border-2 p-4 mb-4" type="email" name="email" id="" placeholder="email" required />
                     <br />
                     <hr />
